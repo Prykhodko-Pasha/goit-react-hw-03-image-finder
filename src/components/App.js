@@ -1,69 +1,76 @@
 import React from 'react';
-import Section from './Section/Section';
-import Form from './Form/Form';
-import Contacts from './Contacts/Contacts';
-import ContactsSearch from './ContactsSearch/ContactsSearch';
-import s from './Contacts/Contacts.module.css';
+import Searchbar from './Searchbar/Searchbar';
 
-export default class Phonebook extends React.Component {
+export default class ImageFinder extends React.Component {
   state = {
-    contacts: [],
-    filter: '',
+    images: [],
+    searchQuery: '',
+    loading: false,
   };
 
   componentDidMount() {
-    const parsedContacts = JSON.parse(localStorage.getItem('contacts'));
-    if (parsedContacts) {
-      this.setState({ contacts: parsedContacts });
-    }
+    this.setState({ loading: true });
+    fetch(
+      `https://pixabay.com/api/?q=${this.state.searchQuery}&page=1&key=22963299-57829f6e237632471c998bdfc&image_type=photo&orientation=horizontal&per_page=12`,
+    )
+      .then(response => response.json())
+      .then(data => {
+        // console.log(data.hits);
+        const usableImagesKeysArr = [];
+        data.hits.map(({ id, webformatURL, largeImageURL }) =>
+          usableImagesKeysArr.push({ id, webformatURL, largeImageURL }),
+        );
+        // console.log(usableImagesKeysArr);
+        return this.setState({ images: usableImagesKeysArr });
+      })
+      .finally(() => this.setState({ loading: false }));
   }
 
-  componentDidUpdate(prevState) {
-    if (prevState.contacts !== this.state.contacts) {
-      localStorage.setItem('contacts', JSON.stringify(this.state.contacts));
-    }
-  }
+  // componentDidUpdate(prevState) {
+  //   if (prevState.contacts !== this.state.contacts) {
+  //     localStorage.setItem('contacts', JSON.stringify(this.state.contacts));
+  //   }
+  // }
 
-  countContats = () => this.state.contacts.length;
+  // countContats = () => this.state.contacts.length;
 
-  filteredContactsArr = () => {
-    const { contacts, filter } = this.state;
-    return contacts.filter(contact =>
-      contact.name.toLowerCase().includes(filter),
-    );
+  // filteredContactsArr = () => {
+  //   const { contacts, filter } = this.state;
+  //   return contacts.filter(contact =>
+  //     contact.name.toLowerCase().includes(filter),
+  //   );
+  // };
+
+  // onAddContact = contact => {
+  //   const isContactExist = this.state.contacts.filter(
+  //     con => con.name.toLowerCase() === contact.name.toLowerCase(),
+  //   );
+  //   if (isContactExist.length === 0) {
+  //     this.setState(prevState => ({
+  //       contacts: [...prevState.contacts, contact],
+  //     }));
+  //   } else {
+  //     alert(`${contact.name} is already in contacts.`);
+  //   }
+  // };
+
+  onSearch = query => {
+    this.setState({ searchQuery: query });
   };
 
-  onAddContact = contact => {
-    const isContactExist = this.state.contacts.filter(
-      con => con.name.toLowerCase() === contact.name.toLowerCase(),
-    );
-    if (isContactExist.length === 0) {
-      this.setState(prevState => ({
-        contacts: [...prevState.contacts, contact],
-      }));
-    } else {
-      alert(`${contact.name} is already in contacts.`);
-    }
-  };
-
-  onSearch = e => {
-    this.setState({ filter: e.currentTarget.value.toLowerCase() });
-  };
-
-  onDeleteContact = contactId => {
-    this.setState(prevState => ({
-      contacts: prevState.contacts.filter(contact => contact.id !== contactId),
-    }));
-  };
+  // onDeleteContact = contactId => {
+  //   this.setState(prevState => ({
+  //     contacts: prevState.contacts.filter(contact => contact.id !== contactId),
+  //   }));
+  // };
 
   render() {
-    let total = this.countContats();
+    // let total = this.countContats();
 
     return (
       <>
-        <Section title="Phonebook">
-          <Form onAddContact={this.onAddContact} />
-        </Section>
+        <Searchbar onSearch={this.onSearch} />
+        {/* </Section>
         <Section title="Contacts">
           {total > 0 ? (
             <>
@@ -81,7 +88,7 @@ export default class Phonebook extends React.Component {
               <p className={s.text}>No contacts yet</p>
             </div>
           )}
-        </Section>
+        </Section> */}
       </>
     );
   }
