@@ -1,18 +1,17 @@
 import React from 'react';
-// import PropTypes from 'prop-types';
+import PropTypes from 'prop-types';
 import s from './Modal.module.css';
 
 export default class Modal extends React.Component {
-  //   state = {
-  //     images: [],
-  //     status: 'pending',
-  //     loadMore: false,
-  //     pageNumber: 1,
-  //   };
+  static propTypes = {
+    onClose: PropTypes.func.isRequired,
+    children: PropTypes.element.isRequired,
+  };
 
   componentDidMount() {
     window.addEventListener('keydown', this.onKeyDown);
   }
+
   componentWillUnmount() {
     window.removeEventListener('keydown', this.onKeyDown);
   }

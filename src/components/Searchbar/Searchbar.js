@@ -18,15 +18,9 @@ export default class Searchbar extends React.Component {
   onSubmit = e => {
     e.preventDefault();
     this.props.onSearch(this.state.query);
-    // this.reset();
   };
 
-  //   reset = () => {
-  //     this.setState({ query: '' });
-  //   };
-
   render() {
-    // const { name, number } = this.state;
     return (
       <header className={s.Searchbar}>
         <form className={s.SearchForm} onSubmit={this.onSubmit}>

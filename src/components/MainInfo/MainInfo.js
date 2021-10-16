@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import fetchImages from '../../services/images-api';
 import Loader from '../Loader/Loader';
 import ImageGallery from '../ImageGallery/ImageGallery';
@@ -7,9 +8,15 @@ import Button from '../Button/Button';
 export default class MainInfo extends React.Component {
   state = {
     images: [],
-    status: 'pending',
+    status: 'idle',
     loadMore: false,
     pageNumber: 1,
+    errorMessage: '',
+  };
+
+  static propTypes = {
+    searchQuery: PropTypes.string.isRequired,
+    onOpenModal: PropTypes.func.isRequired,
   };
 
   componentDidUpdate(prevProps) {
@@ -30,13 +37,10 @@ export default class MainInfo extends React.Component {
     fetchImages(searchQuery, pageNumber)
       .then(data => {
         if (data.hits.length === 0) {
-          console.log('Sorry!<br>No matches found...');
-          //         new Noty({
-          //   theme: 'nest',
-          //   type: 'error',
-          //   text: 'Sorry!<br>No matches found...',
-          //   timeout: 3000,
-          // }).show();
+          this.setState({
+            status: 'rejected',
+            errorMessage: 'No matches found :(',
+          });
         } else {
           const usableImageKeysArr = [];
           const totalPages = Math.ceil(data.total / 12);
@@ -44,7 +48,6 @@ export default class MainInfo extends React.Component {
           data.hits.map(({ id, webformatURL, largeImageURL }) =>
             usableImageKeysArr.push({ id, webformatURL, largeImageURL }),
           );
-          //   console.log(usableImageKeysArr);
 
           return this.setState(prevState => ({
             images: [...prevState.images, ...usableImageKeysArr],
@@ -54,8 +57,10 @@ export default class MainInfo extends React.Component {
         }
       })
       .catch(err => {
-        console.log("I've cathed error: ", err);
-        this.setState({ status: 'rejected' });
+        this.setState({
+          status: 'rejected',
+          errorMessage: `There is an error: ${err}`,
+        });
       });
   };
 
@@ -68,18 +73,17 @@ export default class MainInfo extends React.Component {
       () => {
         const searchQuery = this.props.searchQuery;
         const { pageNumber } = this.state;
-        console.log(pageNumber);
         this.generateSearchQueryResult(searchQuery, pageNumber);
       },
     );
   };
 
   render() {
-    const { images, status, loadMore } = this.state;
+    const { images, status, loadMore, errorMessage } = this.state;
 
-    // if (status === 'idle') {
-    //   return <p>Enter search query</p>;
-    // }
+    if (status === 'idle') {
+      return <p className="Msg">Enter search query :)</p>;
+    }
     if (status === 'pending') {
       return (
         <>
@@ -90,7 +94,7 @@ export default class MainInfo extends React.Component {
       );
     }
     if (status === 'rejected') {
-      return <p>Error</p>;
+      return <p className="Msg">{errorMessage}</p>;
     }
     if (status === 'resolved') {
       return (
