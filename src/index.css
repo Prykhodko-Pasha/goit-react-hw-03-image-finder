@@ -28,7 +28,14 @@ img {
   height: auto;
 }
 
-/* ul,
+.App {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-gap: 16px;
+  padding-bottom: 24px;
+}
+
+ul,
 li,
 h1,
 h2,
@@ -36,4 +43,4 @@ h3 {
   margin: 0;
   padding: 0;
   list-style: none;
-} */
+}

@@ -1,29 +1,48 @@
 import React from 'react';
 import Searchbar from './Searchbar/Searchbar';
+import Loader from './Loader/Loader';
+import imagesAPI from '../services/images-api';
 
 export default class ImageFinder extends React.Component {
   state = {
     images: [],
     searchQuery: '',
-    loading: false,
+    // error: '',
+    status: 'pending',
   };
 
-  componentDidMount() {
-    this.setState({ loading: true });
-    fetch(
-      `https://pixabay.com/api/?q=${this.state.searchQuery}&page=1&key=22963299-57829f6e237632471c998bdfc&image_type=photo&orientation=horizontal&per_page=12`,
-    )
-      .then(response => response.json())
+  componentDidUpdate(prevState) {
+    const { searchQuery } = this.state;
+    if (prevState.searchQuery !== searchQuery)
+      this.setState({ status: 'pending' });
+
+    imagesAPI
+      .fetchImages(searchQuery, 1)
       .then(data => {
-        // console.log(data.hits);
-        const usableImagesKeysArr = [];
-        data.hits.map(({ id, webformatURL, largeImageURL }) =>
-          usableImagesKeysArr.push({ id, webformatURL, largeImageURL }),
-        );
-        // console.log(usableImagesKeysArr);
-        return this.setState({ images: usableImagesKeysArr });
+        if (data.hits.length === 0) {
+          console.log('Sorry!<br>No matches found...');
+          //         new Noty({
+          //   theme: 'nest',
+          //   type: 'error',
+          //   text: 'Sorry!<br>No matches found...',
+          //   timeout: 3000,
+          // }).show();
+        } else {
+          const usableImageKeysArr = [];
+          data.hits.map(({ id, webformatURL, largeImageURL }) =>
+            usableImageKeysArr.push({ id, webformatURL, largeImageURL }),
+          );
+          // console.log(usableImagesKeysArr);
+          return this.setState({
+            images: usableImageKeysArr,
+            status: 'resolved',
+          });
+        }
       })
-      .finally(() => this.setState({ loading: false }));
+      .catch(err => {
+        console.log("I've cathed error: ", err);
+        this.setState({ status: 'rejected' });
+      });
   }
 
   // componentDidUpdate(prevState) {
@@ -66,30 +85,20 @@ export default class ImageFinder extends React.Component {
 
   render() {
     // let total = this.countContats();
+    const { searchQuery, status } = this.state;
 
-    return (
-      <>
-        <Searchbar onSearch={this.onSearch} />
-        {/* </Section>
-        <Section title="Contacts">
-          {total > 0 ? (
-            <>
-              <ContactsSearch
-                value={this.state.filter}
-                onChange={this.onSearch}
-              />
-              <Contacts
-                contactsArr={this.filteredContactsArr()}
-                onDeleteContact={this.onDeleteContact}
-              />
-            </>
-          ) : (
-            <div className={s.wrapper}>
-              <p className={s.text}>No contacts yet</p>
-            </div>
-          )}
-        </Section> */}
-      </>
-    );
+    // <Searchbar onSearch={this.onSearch} />
+    if (status === 'idle') {
+      return <p>Enter search query</p>;
+    }
+    if (status === 'pending') {
+      return <Loader />;
+    }
+    if (status === 'rejected') {
+      return <p>Error</p>;
+    }
+    if (status === 'resolved') {
+      return <p>Ok</p>;
+    }
   }
 }
