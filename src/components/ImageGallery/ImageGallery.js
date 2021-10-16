@@ -1,16 +1,16 @@
 import PropTypes from 'prop-types';
-import s from './Contacts.module.css';
+import s from './ImageGallery.module.css';
 import ImageGalleryItem from '../ImageGalleryItem/ImageGalleryItem';
 
-export default function ImageGallery({ contactsArr, onDeleteContact }) {
+export default function ImageGallery({ imagesArr }) {
   return (
     <ul className={s.ImageGallery}>
-      {contactsArr.map(({ id, name, number }) => (
+      {imagesArr.map(({ id, webformatURL, largeImageURL }) => (
         <ImageGalleryItem
+          key={id}
           id={id}
-          name={name}
-          number={number}
-          onDeleteContact={onDeleteContact}
+          webformatURL={webformatURL}
+          largeImageURL={largeImageURL}
         />
       ))}
     </ul>
@@ -18,12 +18,5 @@ export default function ImageGallery({ contactsArr, onDeleteContact }) {
 }
 
 ImageGallery.propTypes = {
-  contactsArr: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.string.isRequired,
-      name: PropTypes.string.isRequired,
-      number: PropTypes.string.isRequired,
-    }),
-  ),
-  onDeleteContact: PropTypes.func.isRequired,
+  imagesArr: PropTypes.arrayOf(PropTypes.object).isRequired,
 };

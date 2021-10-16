@@ -12,7 +12,7 @@ export default class Searchbar extends React.Component {
   };
 
   onChange = e => {
-    this.setState({ query: e.currentTarget.value });
+    this.setState({ query: e.currentTarget.value.trim() });
   };
 
   onSubmit = e => {

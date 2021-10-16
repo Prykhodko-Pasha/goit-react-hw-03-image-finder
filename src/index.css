@@ -28,13 +28,6 @@ img {
   height: auto;
 }
 
-.App {
-  display: grid;
-  grid-template-columns: 1fr;
-  grid-gap: 16px;
-  padding-bottom: 24px;
-}
-
 ul,
 li,
 h1,
