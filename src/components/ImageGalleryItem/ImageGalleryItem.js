@@ -5,7 +5,6 @@ export default function ImageGalleryItem({ id, webformatURL, largeImageURL }) {
   return (
     <li className={s.ImageGalleryItem}>
       <img
-        key={id}
         id={id}
         src={webformatURL}
         alt=""

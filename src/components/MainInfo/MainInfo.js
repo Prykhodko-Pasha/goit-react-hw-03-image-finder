@@ -44,6 +44,7 @@ export default class MainInfo extends React.Component {
           data.hits.map(({ id, webformatURL, largeImageURL }) =>
             usableImageKeysArr.push({ id, webformatURL, largeImageURL }),
           );
+          //   console.log(usableImageKeysArr);
 
           return this.setState(prevState => ({
             images: [...prevState.images, ...usableImageKeysArr],
@@ -62,6 +63,7 @@ export default class MainInfo extends React.Component {
     this.setState(
       prevState => ({
         pageNumber: prevState.pageNumber + 1,
+        status: 'pending',
       }),
       () => {
         const searchQuery = this.props.searchQuery;
@@ -73,14 +75,19 @@ export default class MainInfo extends React.Component {
   };
 
   render() {
-    // let total = this.countContats();
-    const { images, status } = this.state;
+    const { images, status, loadMore } = this.state;
 
     // if (status === 'idle') {
     //   return <p>Enter search query</p>;
     // }
     if (status === 'pending') {
-      return <Loader />;
+      return (
+        <>
+          {images.length !== 0 ? <ImageGallery imagesArr={images} /> : <></>}
+          <Loader />
+          <div className="loadMoreReplacer"></div>
+        </>
+      );
     }
     if (status === 'rejected') {
       return <p>Error</p>;
@@ -88,8 +95,11 @@ export default class MainInfo extends React.Component {
     if (status === 'resolved') {
       return (
         <>
-          <ImageGallery imagesArr={images} />
-          <Button onLoadMore={this.onLoadMore} />
+          <ImageGallery
+            imagesArr={images}
+            onOpenModal={this.props.onOpenModal}
+          />
+          {loadMore && <Button onLoadMore={this.onLoadMore} />}
         </>
       );
     }
