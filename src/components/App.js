@@ -35,10 +35,16 @@ export default class App extends React.Component {
             errorMessage: 'No matches found :(',
           });
         } else {
-          const usableImageKeysArr = [];
+          // const usableImageKeysArr = [];
           const totalPages = Math.ceil(data.total / 12);
-          data.hits.map(({ id, webformatURL, largeImageURL }) =>
-            usableImageKeysArr.push({ id, webformatURL, largeImageURL }),
+          const usableImageKeysArr = data.hits.map(
+            ({ id, webformatURL, largeImageURL }) => {
+              return {
+                id,
+                webformatURL,
+                largeImageURL,
+              };
+            },
           );
 
           this.setState(prevState => ({
