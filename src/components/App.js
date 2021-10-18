@@ -1,13 +1,64 @@
 import React from 'react';
+import fetchImages from '../services/images-api';
 import Searchbar from './Searchbar/Searchbar';
-import MainInfo from './MainInfo/MainInfo';
+import Loader from './Loader/Loader';
+import ImageGallery from './ImageGallery/ImageGallery';
+import Button from './Button/Button';
 import Modal from './Modal/Modal';
 
-export default class ImageFinder extends React.Component {
+export default class App extends React.Component {
   state = {
     searchQuery: '',
+    images: [],
+    status: 'idle',
+    pageNumber: 1,
+    showLoadMoreBtn: false,
     showModal: false,
+    errorMessage: '',
     src: '',
+  };
+
+  componentDidUpdate(prevProps, prevState) {
+    const { pageNumber, searchQuery } = this.state;
+    if (prevState.searchQuery !== searchQuery) {
+      this.setState({ images: [], status: 'pending', pageNumber: 1 });
+      this.generateSearchQueryResult(searchQuery, pageNumber);
+    }
+  }
+
+  generateSearchQueryResult = (searchQuery, pageNumber) => {
+    fetchImages(searchQuery, pageNumber)
+      .then(data => {
+        if (data.hits.length === 0) {
+          this.setState({
+            status: 'rejected',
+            errorMessage: 'No matches found :(',
+          });
+        } else {
+          const usableImageKeysArr = [];
+          const totalPages = Math.ceil(data.total / 12);
+          data.hits.map(({ id, webformatURL, largeImageURL }) =>
+            usableImageKeysArr.push({ id, webformatURL, largeImageURL }),
+          );
+
+          this.setState(prevState => ({
+            images: [...prevState.images, ...usableImageKeysArr],
+            status: 'resolved',
+            showLoadMoreBtn: totalPages === pageNumber ? false : true,
+          }));
+
+          window.scrollTo({
+            top: document.documentElement.scrollHeight,
+            behavior: 'smooth',
+          });
+        }
+      })
+      .catch(err => {
+        this.setState({
+          status: 'rejected',
+          errorMessage: `There is an error: ${err}`,
+        });
+      });
   };
 
   onSearch = query => {
@@ -24,12 +75,40 @@ export default class ImageFinder extends React.Component {
     this.setState({ showModal: false, src: '' });
   };
 
+  onLoadMore = () => {
+    this.setState(
+      prevState => ({
+        pageNumber: prevState.pageNumber + 1,
+        status: 'pending',
+      }),
+      () => {
+        const { searchQuery, pageNumber } = this.state;
+        this.generateSearchQueryResult(searchQuery, pageNumber);
+      },
+    );
+  };
+
   render() {
-    const { searchQuery, showModal, src } = this.state;
+    const { images, status, showLoadMoreBtn, errorMessage, showModal, src } =
+      this.state;
     return (
       <>
         <Searchbar onSearch={this.onSearch} />
-        <MainInfo searchQuery={searchQuery} onOpenModal={this.onOpenModal} />
+        {status === 'idle' && <p className="Msg">Enter search query :)</p>}
+        {status === 'pending' && (
+          <>
+            {images.length !== 0 && <ImageGallery imagesArr={images} />}
+            <Loader />
+            <div className="loadMoreReplacer"></div>
+          </>
+        )}
+        {status === 'rejected' && <p className="Msg">{errorMessage}</p>}
+        {status === 'resolved' && (
+          <>
+            <ImageGallery imagesArr={images} onOpenModal={this.onOpenModal} />
+            {showLoadMoreBtn && <Button onLoadMore={this.onLoadMore} />}
+          </>
+        )}
         {showModal && (
           <Modal onClose={this.onCloseModal}>
             <img src={src} alt="" />

@@ -5,9 +5,9 @@ import ImageGalleryItem from '../ImageGalleryItem/ImageGalleryItem';
 export default function ImageGallery({ imagesArr, onOpenModal }) {
   return (
     <ul className={s.ImageGallery} onClick={e => onOpenModal(e.target)}>
-      {imagesArr.map(({ id, webformatURL, largeImageURL }) => (
+      {imagesArr.map(({ id, webformatURL, largeImageURL }, index) => (
         <ImageGalleryItem
-          key={id}
+          key={index}
           id={id}
           webformatURL={webformatURL}
           largeImageURL={largeImageURL}
