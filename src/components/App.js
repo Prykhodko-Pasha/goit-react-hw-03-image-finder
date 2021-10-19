@@ -19,10 +19,11 @@ export default class App extends React.Component {
   };
 
   componentDidUpdate(prevProps, prevState) {
-    const { pageNumber, searchQuery } = this.state;
+    const { searchQuery } = this.state;
     if (prevState.searchQuery !== searchQuery) {
-      this.setState({ images: [], status: 'pending', pageNumber: 1 });
-      this.generateSearchQueryResult(searchQuery, pageNumber);
+      this.setState({ images: [], status: 'pending', pageNumber: 1 }, () =>
+        this.generateSearchQueryResult(searchQuery, this.state.pageNumber),
+      );
     }
   }
 
@@ -35,7 +36,6 @@ export default class App extends React.Component {
             errorMessage: 'No matches found :(',
           });
         } else {
-          // const usableImageKeysArr = [];
           const totalPages = Math.ceil(data.total / 12);
           const usableImageKeysArr = data.hits.map(
             ({ id, webformatURL, largeImageURL }) => {
