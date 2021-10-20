@@ -19,11 +19,14 @@ export default class App extends React.Component {
   };
 
   componentDidUpdate(prevProps, prevState) {
-    const { searchQuery } = this.state;
+    const { searchQuery, pageNumber } = this.state;
     if (prevState.searchQuery !== searchQuery) {
       this.setState({ images: [], status: 'pending', pageNumber: 1 }, () =>
         this.generateSearchQueryResult(searchQuery, this.state.pageNumber),
       );
+    }
+    if (prevState.pageNumber !== pageNumber && pageNumber !== 1) {
+      this.generateSearchQueryResult(searchQuery, pageNumber);
     }
   }
 
@@ -87,10 +90,10 @@ export default class App extends React.Component {
         pageNumber: prevState.pageNumber + 1,
         status: 'pending',
       }),
-      () => {
-        const { searchQuery, pageNumber } = this.state;
-        this.generateSearchQueryResult(searchQuery, pageNumber);
-      },
+      // () => {
+      //   const { searchQuery, pageNumber } = this.state;
+      //   this.generateSearchQueryResult(searchQuery, pageNumber);
+      // },
     );
   };
 

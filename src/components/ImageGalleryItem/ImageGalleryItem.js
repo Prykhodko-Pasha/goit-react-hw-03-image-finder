@@ -3,15 +3,13 @@ import s from './ImageGalleryItem.module.css';
 
 export default function ImageGalleryItem({ id, webformatURL, largeImageURL }) {
   return (
-    <li className={s.ImageGalleryItem}>
-      <img
-        id={id}
-        src={webformatURL}
-        alt=""
-        className={s.ImageGalleryItem__image}
-        data-src={largeImageURL}
-      />
-    </li>
+    <img
+      id={id}
+      src={webformatURL}
+      alt=""
+      className={s.ImageGalleryItem__image}
+      data-src={largeImageURL}
+    />
   );
 }
 
